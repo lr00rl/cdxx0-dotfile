@@ -1,12 +1,7 @@
-(setq package-archives '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-                         ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
-                         ("nongnu" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/nongnu/")))
-
+(setq custom-file "~/.emacs.custom.el")
 (package-initialize)
 
 (add-to-list 'load-path "~/.emacs.local/")
-(add-to-list 'load-path "~/.emacs.d/love-minor-mode")
-(add-to-list 'load-path "~/.emacs.d/helm-cmd-t")
 
 (load "~/.emacs.rc/rc.el")
 
@@ -18,7 +13,7 @@
 (defun rc/get-default-font ()
   (cond
    ((eq system-type 'windows-nt) "Consolas-13")
-   ((eq system-type 'gnu/linux) "IosevkaNerdFont-17")))
+   ((eq system-type 'gnu/linux) "IosevkaNerdFont-16")))
 
 (add-to-list 'default-frame-alist `(font . ,(rc/get-default-font)))
 
@@ -73,10 +68,14 @@
 
 ;;; Emacs lisp
 (add-hook 'emacs-lisp-mode-hook
-          '(lambda ()
+          #'(lambda ()
              (local-set-key (kbd "C-c C-j")
                             (quote eval-print-last-sexp))))
 (add-to-list 'auto-mode-alist '("Cask" . emacs-lisp-mode))
+
+;;; uxntal-mode
+
+(rc/require 'uxntal-mode)
 
 ;;; Haskell mode
 (rc/require 'haskell-mode)
@@ -87,7 +86,6 @@
 (add-hook 'haskell-mode-hook 'haskell-indent-mode)
 (add-hook 'haskell-mode-hook 'interactive-haskell-mode)
 (add-hook 'haskell-mode-hook 'haskell-doc-mode)
-(add-hook 'haskell-mode-hook 'hindent-mode)
 
 (require 'basm-mode)
 
@@ -102,6 +100,8 @@
 
 (require 'simpc-mode)
 (add-to-list 'auto-mode-alist '("\\.[hc]\\(pp\\)?\\'" . simpc-mode))
+
+(require 'c3-mode)
 
 ;;; Whitespace mode
 (defun rc/set-up-whitespace-handling ()
@@ -160,11 +160,10 @@
       (concat dired-omit-files "\\|^\\..+$"))
 (setq-default dired-dwim-target t)
 (setq dired-listing-switches "-alh")
+(setq dired-mouse-drag-files t)
 
 ;;; helm
-;;; (rc/require 'helm 'helm-cmd-t 'helm-git-grep 'helm-ls-git)
 (rc/require 'helm 'helm-git-grep 'helm-ls-git)
-(require 'helm-cmd-t)
 
 (setq helm-ff-transformer-show-only-basename nil)
 
@@ -214,29 +213,34 @@
 (add-hook 'emacs-lisp-mode-hook 'rc/turn-on-eldoc-mode)
 
 ;;; Company
-(rc/require 'company)
-(require 'company)
+;; (rc/require 'company)
+;; (require 'company)
 
-(global-company-mode)
+;; (global-company-mode)
 
-(add-hook 'tuareg-mode-hook
-          (lambda ()
-            (interactive)
-            (company-mode 0)))
+;; (add-hook 'tuareg-mode-hook
+;;           (lambda ()
+;;             (interactive)
+;;             (company-mode 0)))
+
+;;; Typescript
+(rc/require 'typescript-mode)
+(add-to-list 'auto-mode-alist '("\\.mts\\'" . typescript-mode))
 
 ;;; Tide
 (rc/require 'tide)
 
-(defun rc/turn-on-tide ()
+(defun rc/turn-on-tide-and-flycheck ()  ;Flycheck is a dependency of tide
   (interactive)
-  (tide-setup))
+  (tide-setup)
+  (flycheck-mode 1))
 
-(add-hook 'typescript-mode-hook 'rc/turn-on-tide)
+(add-hook 'typescript-mode-hook 'rc/turn-on-tide-and-flycheck)
 
 ;;; Proof general
 (rc/require 'proof-general)
 (add-hook 'coq-mode-hook
-          '(lambda ()
+          #'(lambda ()
              (local-set-key (kbd "C-c C-q C-n")
                             (quote proof-assert-until-point-interactive))))
 
@@ -276,7 +280,6 @@
  'purescript-mode
  'nix-mode
  'dockerfile-mode
-;; 'love-minor-mode
  'toml-mode
  'nginx-mode
  'kotlin-mode
@@ -285,14 +288,11 @@
  'racket-mode
  'qml-mode
  'ag
- 'hindent
  'elpy
  'typescript-mode
  'rfc-mode
  'sml-mode
- 'evil
  )
-(require 'love-minor-mode)
 
 (load "~/.emacs.shadow/shadow-rc.el" t)
 
@@ -322,31 +322,4 @@ compilation-error-regexp-alist-alist
              '("\\([a-zA-Z0-9\\.]+\\)(\\([0-9]+\\)\\(,\\([0-9]+\\)\\)?) \\(Warning:\\)?"
                1 2 (4) (5)))
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(display-line-numbers-type 'relative)
- '(org-agenda-dim-blocked-tasks nil)
- '(org-agenda-exporter-settings '((org-agenda-tag-filter-preset (list "+personal"))))
- '(org-cliplink-transport-implementation 'url-el)
- '(org-enforce-todo-dependencies nil)
- '(org-modules
-   '(org-bbdb org-bibtex org-docview org-gnus org-habit org-info org-irc org-mhe org-rmail org-w3m))
- '(org-refile-use-outline-path 'file)
- '(package-selected-packages
-   '(rainbow-mode proof-general elpy hindent ag qml-mode racket-mode php-mode go-mode kotlin-mode nginx-mode toml-mode love-minor-mode dockerfile-mode nix-mode purescript-mode markdown-mode jinja2-mode nim-mode csharp-mode rust-mode cmake-mode clojure-mode graphviz-dot-mode lua-mode tuareg glsl-mode yaml-mode d-mode scala-mode move-text nasm-mode editorconfig tide company powershell js2-mode yasnippet helm-ls-git helm-git-grep helm-cmd-t helm multiple-cursors magit haskell-mode paredit ido-completing-read+ smex gruber-darker-theme org-cliplink dash-functional dash))
- '(safe-local-variable-values
-   '((eval progn
-           (auto-revert-mode 1)
-           (rc/autopull-changes)
-           (add-hook 'after-save-hook 'rc/autocommit-changes nil 'make-it-local))))
- '(whitespace-style
-   '(face tabs spaces trailing space-before-tab newline indentation empty space-after-tab space-mark tab-mark)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+(load-file custom-file)

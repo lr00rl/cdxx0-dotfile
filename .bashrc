@@ -91,7 +91,7 @@ fi
 alias ll='ls -l'
 alias la='ls -A'
 alias l='ls -CF'
-alias emacs='emacs -nw'
+# alias emacs='emacs -nw'
 
 # Alias definitions.
 # You may want to put all your additions into a separate file like
