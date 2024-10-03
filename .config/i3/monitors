@@ -1,0 +1,1 @@
+xrandr --output HDMI-A-0 --mode 3840x2160 --rate 144.00 --output DisplayPort-0 --off
